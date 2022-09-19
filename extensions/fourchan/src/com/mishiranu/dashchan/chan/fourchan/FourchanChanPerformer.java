@@ -628,6 +628,46 @@ public class FourchanChanPerformer extends ChanPerformer {
 			captchaData.put(CAPTCHA_DATA_KEY_TYPE, captchaType);
 			captchaData.put(CaptchaData.CHALLENGE, challenge);
 			result = new ReadCaptchaResult(CaptchaState.CAPTCHA, captchaData).setImage(resultImage);
+		} else if (FourchanChanConfiguration.CAPTCHA_TYPE_4CHAN_CAPTCHA_EXPERIMENTAL.equals(captchaType)) {
+
+			if (data.mayShowLoadButton) {
+				return new ReadCaptchaResult(CaptchaState.NEED_LOAD, null);
+			}
+
+			String threadNumber = data.requirement == null ? data.threadNumber : "1";
+			Uri.Builder builder = locator.createSysUri("captcha").buildUpon()
+					.appendQueryParameter("board", data.boardName);
+			if (threadNumber != null) {
+				builder.appendQueryParameter("thread_id", threadNumber);
+			}
+
+			Uri uri = builder.build();
+			String challenge;
+			Bitmap image;
+			Bitmap background;
+
+			try {
+				JSONObject jsonObject = new JSONObject(new HttpRequest(uri, data)
+						.addCookie(COOKIE_FOURCHAN_PASS, configuration.getCookie(COOKIE_FOURCHAN_PASS))
+						.perform().readString());
+				challenge = jsonObject.getString("challenge");
+				byte[] imageBytes = Base64.decode(jsonObject.getString("img"), 0);
+				byte[] backgroundBytes = Base64.decode(jsonObject.optString("bg"), 0);
+				image = imageBytes.length == 0 ? null
+						: BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+				background = backgroundBytes.length == 0 ? null
+						: BitmapFactory.decodeByteArray(backgroundBytes, 0, backgroundBytes.length);
+				Bitmap resultImage = FourchanCaptchaUtils.create(image, background, 0);
+				CaptchaData captchaData = new CaptchaData();
+				captchaData.put(CAPTCHA_DATA_KEY_TYPE, captchaType);
+				captchaData.put(CaptchaData.CHALLENGE, challenge);
+				result = new ReadCaptchaResult(CaptchaState.CAPTCHA, captchaData)
+						.setImageBytes(imageBytes)
+						.setBackgroundBytes(backgroundBytes);
+			} catch (JSONException e) {
+				throw new InvalidResponseException(e);
+			}
+
 		} else if (FourchanChanConfiguration.CAPTCHA_TYPE_RECAPTCHA_2.equals(captchaType)) {
 			CaptchaData captchaData = new CaptchaData();
 			captchaData.put(CAPTCHA_DATA_KEY_TYPE, captchaType);

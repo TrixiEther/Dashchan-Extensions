@@ -16,6 +16,7 @@ import org.json.JSONObject;
 
 public class FourchanChanConfiguration extends ChanConfiguration {
 	public static final String CAPTCHA_TYPE_4CHAN_CAPTCHA = "4chan_captcha";
+	public static final String CAPTCHA_TYPE_4CHAN_CAPTCHA_EXPERIMENTAL = "4chan_captcha_experimental";
 
 	private static final String KEY_FLAGS_ENABLED = "flags_enabled";
 	private static final String KEY_BOARD_FLAGS = "board_flags_enabled";
@@ -35,6 +36,7 @@ public class FourchanChanConfiguration extends ChanConfiguration {
 		setBumpLimit(300);
 		addCaptchaType(CAPTCHA_TYPE_4CHAN_CAPTCHA);
 		addCaptchaType(CAPTCHA_TYPE_RECAPTCHA_2);
+		addCaptchaType(CAPTCHA_TYPE_4CHAN_CAPTCHA_EXPERIMENTAL);
 		addCustomPreference(KEY_MATH_TAGS, false);
 		addCustomPreference(KEY_FIX_NSFW_BOARDS, true);
 	}
@@ -56,6 +58,12 @@ public class FourchanChanConfiguration extends ChanConfiguration {
 		if (CAPTCHA_TYPE_4CHAN_CAPTCHA.equals(captchaType)) {
 			Captcha captcha = new Captcha();
 			captcha.title = "4chan Captcha";
+			captcha.input = Captcha.Input.LATIN;
+			captcha.validity = Captcha.Validity.SHORT_LIFETIME;
+			return captcha;
+		} else if (CAPTCHA_TYPE_4CHAN_CAPTCHA_EXPERIMENTAL.equals(captchaType)) {
+			Captcha captcha = new Captcha();
+			captcha.title = "4chan Captcha Experimental";
 			captcha.input = Captcha.Input.LATIN;
 			captcha.validity = Captcha.Validity.SHORT_LIFETIME;
 			return captcha;
