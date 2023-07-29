@@ -43,6 +43,8 @@ jobs:
             name: Dollchan
           - module: warosu
             name: Warosu
+          - module: ArchB4K
+            name: archb4k
 
     steps:
     - uses: actions/checkout@v3
