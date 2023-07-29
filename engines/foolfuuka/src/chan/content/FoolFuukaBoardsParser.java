@@ -2,6 +2,7 @@ package chan.content;
 
 import chan.content.model.Board;
 import chan.content.model.BoardCategory;
+import chan.content.model.BoardsParser;
 import chan.text.ParseException;
 import chan.text.TemplateParser;
 import chan.util.StringUtils;
@@ -10,7 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-public class FoolFuukaBoardsParser {
+public class FoolFuukaBoardsParser implements BoardsParser {
 	private final ArrayList<Board> boards = new ArrayList<>();
 
 	private String boardCategoryTitle;

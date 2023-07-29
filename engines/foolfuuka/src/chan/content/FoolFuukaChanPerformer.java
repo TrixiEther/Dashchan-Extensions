@@ -1,6 +1,10 @@
 package chan.content;
 
 import android.net.Uri;
+
+import chan.content.model.Board;
+import chan.content.model.BoardsParser;
+import chan.content.model.PostsParser;
 import chan.http.HttpException;
 import chan.http.HttpRequest;
 import chan.http.HttpResponse;
@@ -18,11 +22,13 @@ public class FoolFuukaChanPerformer extends ChanPerformer {
 		Uri uri = locator.buildPath(data.boardName, "page", Integer.toString(data.pageNumber + 1), "");
 		HttpResponse response = new HttpRequest(uri, data).setValidator(data.validator).perform();
 		try (InputStream input = response.open()) {
-			return new ReadThreadsResult(new FoolFuukaPostsParser(this).convertThreads(input));
+			return new ReadThreadsResult(getPostsParser().convertThreads(input));
 		} catch (ParseException e) {
 			throw new InvalidResponseException(e);
 		} catch (IOException e) {
 			throw response.fail(e);
+		} catch (Exception e) {
+			throw new InvalidResponseException(e);
 		}
 	}
 
@@ -48,11 +54,13 @@ public class FoolFuukaChanPerformer extends ChanPerformer {
 		try (InputStream input = response.open()) {
 			// TODO Move to child classes
 			Uri threadUri = locator.buildPathWithHost("boards.4chan.org", data.boardName, "thread", data.threadNumber);
-			return new ReadPostsResult(new FoolFuukaPostsParser(this).convertPosts(input, threadUri));
+			return new ReadPostsResult(getPostsParser().convertPosts(input, threadUri));
 		} catch (ParseException e) {
 			throw new InvalidResponseException(e);
 		} catch (IOException e) {
 			throw response.fail(e);
+		} catch (Exception e) {
+			throw new InvalidResponseException(e);
 		}
 	}
 
@@ -64,24 +72,35 @@ public class FoolFuukaChanPerformer extends ChanPerformer {
 				.appendEncodedPath("page/" + (data.pageNumber + 1) + "/").build();
 		HttpResponse response = new HttpRequest(uri, data).perform();
 		try (InputStream input = response.open()) {
-			return new ReadSearchPostsResult(new FoolFuukaPostsParser(this).convertSearch(input));
+			return new ReadSearchPostsResult(getPostsParser().convertSearch(input));
 		} catch (ParseException e) {
 			throw new InvalidResponseException(e);
 		} catch (IOException e) {
 			throw response.fail(e);
+		} catch (Exception e) {
+			throw new InvalidResponseException(e);
 		}
 	}
+
 
 	@Override
 	public ReadBoardsResult onReadBoards(ReadBoardsData data) throws HttpException, InvalidResponseException {
 		FoolFuukaChanLocator locator = ChanLocator.get(this);
 		HttpResponse response = new HttpRequest(locator.buildPath(), data).perform();
 		try (InputStream input = response.open()) {
-			return new ReadBoardsResult(new FoolFuukaBoardsParser().convert(input));
+			return new ReadBoardsResult(getBoardsParser().convert(input));
 		} catch (ParseException e) {
 			throw new InvalidResponseException(e);
 		} catch (IOException e) {
 			throw response.fail(e);
+		} catch (Exception e) {
+			throw new InvalidResponseException(e);
 		}
+	}
+
+	protected PostsParser getPostsParser() { return new FoolFuukaPostsParser(this); }
+
+	protected BoardsParser getBoardsParser() {
+		return new FoolFuukaBoardsParser();
 	}
 }
