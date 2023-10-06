@@ -95,6 +95,12 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 			boards.add(new Board(boardId, boardDescription));
 		}
 
+		if (boards.isEmpty())
+		{
+			// for some reason it's empty, so fallback
+			return new ReadBoardsResult(new BoardCategory(null, FALLBACK_BOARD_LIST));
+		}
+
 		return new ReadBoardsResult(new BoardCategory(null, boards));
 	}
 
