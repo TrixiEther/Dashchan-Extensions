@@ -95,6 +95,12 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 			boards.add(new Board(boardId, boardDescription));
 		}
 
+		if (boards.isEmpty())
+		{
+			// for some reason it's empty, so fallback
+			return new ReadBoardsResult(new BoardCategory(null, FALLBACK_BOARD_LIST));
+		}
+
 		return new ReadBoardsResult(new BoardCategory(null, boards));
 	}
 
@@ -408,9 +414,11 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 			return new SendReportPostsResult();
 		}
 
-		if (DollchanChanConfiguration.REPORDING_BAN.equals(data.type))
+		if (DollchanChanConfiguration.REPORDING_BAN.equals(data.type) ||
+			DollchanChanConfiguration.REPORDING_WARNING.equals(data.type))
 		{
-			for (String postNumber : data.postNumbers) {
+			for (String postNumber : data.postNumbers)
+			{
 				DollchanChanLocator locator = DollchanChanLocator.get(this);
 				Uri uri = locator.buildPath(data.boardName,
 					"imgboard.php?manage=&moderate=" + postNumber);
@@ -429,27 +437,41 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 				uri = locator.buildPath(data.boardName,
 						"imgboard.php?manage&bans");
 
-				Matcher reason = REASON_PARSER.matcher(data.comment);
-				if (!reason.find())
-				{
-					throw new ApiException("Comment must be: <number of days> <reason>");
-				}
-
 				int days;
+				String reason;
 
-				try
+				if (DollchanChanConfiguration.REPORDING_WARNING.equals(data.type))
 				{
-					days = Integer.parseInt(reason.group(1));
+					// one second-ban means a warning
+					days = 1;
+					reason = data.comment;
 				}
-				catch (NumberFormatException e)
+				else
 				{
-					throw new ApiException("Comment must be: <number of days> <reason>");
+					Matcher mReason = REASON_PARSER.matcher(data.comment);
+
+					if (!mReason.find())
+					{
+						throw new ApiException("Comment must be: <number of days> <reason>");
+					}
+
+					try
+					{
+						days = Integer.parseInt(mReason.group(1));
+					}
+					catch (NumberFormatException e)
+					{
+						throw new ApiException("Comment must be: <number of days> <reason>");
+					}
+
+					reason = mReason.group(2);
+					days *= 86400;
 				}
 
 				MultipartEntity entity = new MultipartEntity(
 					"ip", ip,
-					"expire", Integer.toString(days * 86400),
-					"reason", reason.group(2)
+					"expire", Integer.toString(days),
+					"reason", reason
 				);
 
 				response = new HttpRequest(uri, data).
