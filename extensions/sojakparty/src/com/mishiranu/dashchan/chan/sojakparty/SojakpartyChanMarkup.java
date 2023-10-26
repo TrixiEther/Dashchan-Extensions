@@ -9,19 +9,28 @@ import chan.content.ChanMarkup;
 import chan.text.CommentEditor;
 
 public class SojakpartyChanMarkup extends ChanMarkup {
-	private static final int SUPPORTED_TAGS = TAG_BOLD | TAG_ITALIC | TAG_SPOILER | TAG_QUOTE;
+	private static final int SUPPORTED_TAGS = TAG_BOLD | TAG_ITALIC | TAG_UNDERLINE | TAG_STRIKE | TAG_CODE | TAG_SPOILER | TAG_QUOTE;
 
 	public SojakpartyChanMarkup() {
 		addTag("strong", TAG_BOLD);
 		addTag("em", TAG_ITALIC);
+		addTag("u", TAG_UNDERLINE);
+		addTag("s", TAG_STRIKE);
+		addTag("code", TAG_CODE);
 		addTag("span", "spoiler", TAG_SPOILER);
 		addTag("span", "quote", TAG_QUOTE);
+		addColorable("div");
 		addColorable("span");
 	}
 
 	@Override
 	public CommentEditor obtainCommentEditor(String boardName) {
 		CommentEditor commentEditor = new CommentEditor();
+		commentEditor.addTag(TAG_BOLD, "'''", "'''", CommentEditor.FLAG_ONE_LINE);
+		commentEditor.addTag(TAG_ITALIC, "''", "''", CommentEditor.FLAG_ONE_LINE);
+		commentEditor.addTag(TAG_UNDERLINE, "__", "__", CommentEditor.FLAG_ONE_LINE);
+		commentEditor.addTag(TAG_STRIKE, "~~", "~~", CommentEditor.FLAG_ONE_LINE);
+		commentEditor.addTag(TAG_CODE, "```", "```", CommentEditor.FLAG_ONE_LINE);
 		commentEditor.addTag(TAG_SPOILER, "**", "**", CommentEditor.FLAG_ONE_LINE);
 		return commentEditor;
 	}

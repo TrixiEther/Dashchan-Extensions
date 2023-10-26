@@ -3,7 +3,7 @@ apply plugin: 'chan-extension'
 chan {
 	versionName '1.0'
 	apiVersion 1
-	hosts 'soyjak.party', 'basedjak.party'
+	hosts 'soyjak.party', 'basedjak.party', 'soyjaks.party', 'basedjaks.party', 'soychan.org'
 }
 
 dependencies {

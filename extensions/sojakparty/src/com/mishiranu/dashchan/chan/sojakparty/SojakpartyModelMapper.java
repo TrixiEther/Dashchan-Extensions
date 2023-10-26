@@ -180,9 +180,10 @@ public class SojakpartyModelMapper {
 					String comment = reader.nextString()
 							.replaceAll("%23", "#")
 							.replaceAll("(?<=<a href=\\\")https://jump\\.kolyma\\.net/\\?", "")
-							.replaceAll("(?<=<span )class=\\\"datamining", "style=\\\"color:#6F6")
-							.replaceAll("(?<=<span )class=\\\"heading", "style=\\\"color:#AF0A0F")
+							.replaceAll("(?<=<div )class=\\\"glow", "style=\\\"color:#00FE20")
+							.replaceAll("(?<=<span )style=\\\"text-shadow:0px 0px 40px #fffb00, 0px 0px 2px #fffb00", "style=\\\"color:#FFFB00")
 							.replaceAll("(?<=<span )class=\\\"heading2", "style=\\\"color:#2424AD")
+							.replaceAll("(?<=<span )class=\\\"heading", "style=\\\"color:#AF0A0F")
 							.replaceAll("(?<=<span )class=\\\"quote2", "style=\\\"color:#F6750B");
 					post.setComment(comment);
 					break;

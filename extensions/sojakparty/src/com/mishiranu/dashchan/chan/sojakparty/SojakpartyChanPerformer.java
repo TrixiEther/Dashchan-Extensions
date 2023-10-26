@@ -36,6 +36,8 @@ import chan.util.StringUtils;
 public class SojakpartyChanPerformer extends ChanPerformer {
 	private static final String RECAPTCHA_API_KEY = "6LdA3F4bAAAAAJ68Fh_IiaJQtxJx0Chgr3SjaAMD";
 	private static final String CAPTCHA_DATA_KEY_TYPE = "captchaType";
+	private final String USER_AGENT_HTTP_HEADER_NAME = "User-Agent";
+	private final String USER_AGENT_HTTP_HEADER_VALUE = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0";
 
 	@Override
 	public ReadThreadsResult onReadThreads(ReadThreadsData data) throws HttpException, InvalidResponseException {
@@ -200,7 +202,8 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 		JSONObject jsonObject = null;
 		try {
 			jsonObject = new JSONObject(new HttpRequest(uri, data).setPostMethod(entity)
-					.addHeader("Referer", locator.buildPath().toString())
+					.addHeader("Referer", contentUri.toString())
+					.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
 					.setRedirectHandler(HttpRequest.RedirectHandler.STRICT).perform().readString());
 		} catch (JSONException e) {
 			e.printStackTrace();

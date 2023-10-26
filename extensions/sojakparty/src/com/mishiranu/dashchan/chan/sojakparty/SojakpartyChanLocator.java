@@ -15,6 +15,8 @@ public class SojakpartyChanLocator extends ChanLocator {
 
 	public SojakpartyChanLocator() {
 		addChanHost("soyjak.party");
+		addChanHost("soyjaks.party");
+		addChanHost("soychan.org");
 		addConvertableChanHost("www.soyjak.party");
 		addConvertableChanHost("basedjak.party");
 		setHttpsMode(HttpsMode.CONFIGURABLE);
