@@ -387,6 +387,26 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 	private SendReportPostsResult doSendReportPosts(SendReportPostsData data, boolean reAuth)
 		throws HttpException, ApiException
 	{
+		if (DollchanChanConfiguration.REPORDING_REPORT.equals(data.type))
+		{
+			for (String postNumber : data.postNumbers) {
+				DollchanChanLocator locator = DollchanChanLocator.get(this);
+
+				MultipartEntity entity = new MultipartEntity(
+					"reason", data.comment,
+					"id", postNumber
+				);
+
+				Uri uri = locator.buildPath(data.boardName,
+						"imgboard.php?report&addreport");
+				new HttpRequest(uri, data).
+					addCookie(buildCookiesWithAuthorizationPass()).setPostMethod(entity).
+					perform();
+			}
+
+			return new SendReportPostsResult();
+		}
+
 		if (authorizeUserFromConfigurationForManage(data, reAuth) == null)
 		{
 			throw new ApiException(ApiException.SEND_ERROR_NO_ACCESS);
