@@ -243,19 +243,18 @@ public class DollchanPostsParser {
 		.equals("span", "class", "postertrip")
 		.content((instance, holder, text) -> holder.post
 				.setTripcode(StringUtils.nullIfEmpty(StringUtils.clearHtml(text).trim())))
-		.text((instance, holder, source) -> {
-			if (holder.headerHandling) {
-				String text = source.toString().trim();
-				if (text.length() > 0) {
-					try {
-						holder.post.setTimestamp(Objects.requireNonNull(
-							DATE_FORMAT.parse(text)).getTime());
-					} catch (java.text.ParseException e) {
-						// Ignore exception
-					}
-					holder.headerHandling = false;
+		.equals("span", "class", "posterdate")
+		.open((instance, holder, tagName, attributes) -> {
+			String timestamp = attributes.get("data-timestamp");
+			if (timestamp != null)
+			{
+				try {
+					holder.post.setTimestamp(Long.parseLong(timestamp) * 1000);
+				} catch (NumberFormatException ignored) {
+					// Ignore exception
 				}
 			}
+			return true;
 		})
 		.equals("div", "class", "message")
 		.content((instance, holder, text) -> {
