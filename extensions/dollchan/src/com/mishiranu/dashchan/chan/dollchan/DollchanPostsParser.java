@@ -127,6 +127,40 @@ public class DollchanPostsParser {
 		.open((instance, holder, tagName, attributes) -> {
 			if (holder.attachment != null && holder.attachment.getFileUri(holder.locator) == null) {
 				holder.attachment.setFileUri(holder.locator, holder.locator.buildPath(attributes.get("href")));
+
+				String size = attributes.get("data-size");
+				if (size != null)
+				{
+					try
+					{
+						int sz = Integer.parseInt(size);
+						holder.attachment.setSize(sz);
+					}
+					catch (NumberFormatException ignored) {}
+				}
+
+				String width = attributes.get("data-width");
+				if (width != null)
+				{
+					try
+					{
+						int w = Integer.parseInt(width);
+						holder.attachment.setWidth(w);
+					}
+					catch (NumberFormatException ignored) {}
+				}
+
+				String height = attributes.get("data-height");
+				if (height != null)
+				{
+					try
+					{
+						int h = Integer.parseInt(height);
+						holder.attachment.setHeight(h);
+					}
+					catch (NumberFormatException ignored) {}
+				}
+
 				return holder.originalNameFromLink;
 			}
 			return false;
