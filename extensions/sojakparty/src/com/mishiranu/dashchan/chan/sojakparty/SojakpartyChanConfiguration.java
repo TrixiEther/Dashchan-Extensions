@@ -13,9 +13,9 @@ public class SojakpartyChanConfiguration extends ChanConfiguration {
 
 	public SojakpartyChanConfiguration() {
 		request(OPTION_READ_POSTS_COUNT);
+		addCaptchaType(CAPTCHA_TYPE_NONE);
 		addCaptchaType(CAPTCHA_TYPE_KAPTCHA);
 		addCaptchaType(CAPTCHA_TYPE_RECAPTCHA_2);
-		addCaptchaType(CAPTCHA_TYPE_NONE);
 		addCustomPreference(KAPTCHA_REPLIES, false);
 		setDefaultName("Chud");
 	}
