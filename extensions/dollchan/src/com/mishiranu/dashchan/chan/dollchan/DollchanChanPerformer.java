@@ -372,7 +372,7 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 	}
 
 	protected static Pattern POSTER_IP = Pattern.compile("<input type=\"hidden\" name=\"bans\" value=\"(.*?)\">");
-	protected static Pattern REASON_PARSER = Pattern.compile("([0-9]+) (.*+)");
+	protected static Pattern REASON_PARSER = Pattern.compile("([0-9]+)/?([0-9]+)? (.*+)");
 
 	private CookieBuilder buildCookiesWithAuthorizationPass() {
 		CookieBuilder builder = new CookieBuilder();
@@ -387,6 +387,26 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 	private SendReportPostsResult doSendReportPosts(SendReportPostsData data, boolean reAuth)
 		throws HttpException, ApiException
 	{
+		if (DollchanChanConfiguration.REPORDING_REPORT.equals(data.type))
+		{
+			for (String postNumber : data.postNumbers) {
+				DollchanChanLocator locator = DollchanChanLocator.get(this);
+
+				MultipartEntity entity = new MultipartEntity(
+					"reason", data.comment,
+					"id", postNumber
+				);
+
+				Uri uri = locator.buildPath(data.boardName,
+						"imgboard.php?report&addreport");
+				new HttpRequest(uri, data).
+					addCookie(buildCookiesWithAuthorizationPass()).setPostMethod(entity).
+					perform();
+			}
+
+			return new SendReportPostsResult();
+		}
+
 		if (authorizeUserFromConfigurationForManage(data, reAuth) == null)
 		{
 			throw new ApiException(ApiException.SEND_ERROR_NO_ACCESS);
@@ -438,6 +458,7 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 						"imgboard.php?manage&bans");
 
 				int days;
+				int subnet = 0;
 				String reason;
 
 				if (DollchanChanConfiguration.REPORDING_WARNING.equals(data.type))
@@ -464,8 +485,21 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 						throw new ApiException("Comment must be: <number of days> <reason>");
 					}
 
-					reason = mReason.group(2);
+					if (mReason.group(2) != null)
+					{
+						try
+						{
+							subnet = Integer.parseInt(mReason.group(2));
+						}
+						catch (NumberFormatException ignored) {}
+					}
+					reason = mReason.group(3);
 					days *= 86400;
+				}
+
+				if (subnet != 0)
+				{
+					ip = ip + "/" + subnet;
 				}
 
 				MultipartEntity entity = new MultipartEntity(
@@ -507,6 +541,7 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 				}
 
 				String ip = m.group(1);
+				String originalIP = ip;
 
 				Matcher reason = REASON_PARSER.matcher(data.comment);
 				if (!reason.find())
@@ -525,10 +560,26 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 					throw new ApiException("Comment must be: <number of days> <reason>");
 				}
 
+				int subnet = 0;
+
+				if (reason.group(2) != null)
+				{
+					try
+					{
+						subnet = Integer.parseInt(reason.group(2));
+					}
+					catch (NumberFormatException ignored) {}
+				}
+
+				if (subnet != 0)
+				{
+					ip += "/" + subnet;
+				}
+
 				MultipartEntity entity = new MultipartEntity(
 					"ip", ip,
 					"expire", Integer.toString(days * 86400),
-					"reason", reason.group(2)
+					"reason", reason.group(3)
 				);
 
 				response = new HttpRequest(
@@ -545,7 +596,7 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 				}
 
 				response = new HttpRequest(
-						locator.buildPath(data.boardName, "imgboard.php?manage&delall=" + ip),
+						locator.buildPath(data.boardName, "imgboard.php?manage&delall=" + originalIP),
 					data).addCookie(buildCookiesWithAuthorizationPass()).
 					perform().readString();
 

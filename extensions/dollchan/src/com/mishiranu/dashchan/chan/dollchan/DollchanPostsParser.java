@@ -127,6 +127,40 @@ public class DollchanPostsParser {
 		.open((instance, holder, tagName, attributes) -> {
 			if (holder.attachment != null && holder.attachment.getFileUri(holder.locator) == null) {
 				holder.attachment.setFileUri(holder.locator, holder.locator.buildPath(attributes.get("href")));
+
+				String size = attributes.get("data-size");
+				if (size != null)
+				{
+					try
+					{
+						int sz = Integer.parseInt(size);
+						holder.attachment.setSize(sz);
+					}
+					catch (NumberFormatException ignored) {}
+				}
+
+				String width = attributes.get("data-width");
+				if (width != null)
+				{
+					try
+					{
+						int w = Integer.parseInt(width);
+						holder.attachment.setWidth(w);
+					}
+					catch (NumberFormatException ignored) {}
+				}
+
+				String height = attributes.get("data-height");
+				if (height != null)
+				{
+					try
+					{
+						int h = Integer.parseInt(height);
+						holder.attachment.setHeight(h);
+					}
+					catch (NumberFormatException ignored) {}
+				}
+
 				return holder.originalNameFromLink;
 			}
 			return false;
@@ -209,19 +243,18 @@ public class DollchanPostsParser {
 		.equals("span", "class", "postertrip")
 		.content((instance, holder, text) -> holder.post
 				.setTripcode(StringUtils.nullIfEmpty(StringUtils.clearHtml(text).trim())))
-		.text((instance, holder, source) -> {
-			if (holder.headerHandling) {
-				String text = source.toString().trim();
-				if (text.length() > 0) {
-					try {
-						holder.post.setTimestamp(Objects.requireNonNull(
-							DATE_FORMAT.parse(text)).getTime());
-					} catch (java.text.ParseException e) {
-						// Ignore exception
-					}
-					holder.headerHandling = false;
+		.equals("span", "class", "posterdate")
+		.open((instance, holder, tagName, attributes) -> {
+			String timestamp = attributes.get("data-timestamp");
+			if (timestamp != null)
+			{
+				try {
+					holder.post.setTimestamp(Long.parseLong(timestamp) * 1000);
+				} catch (NumberFormatException ignored) {
+					// Ignore exception
 				}
 			}
+			return true;
 		})
 		.equals("div", "class", "message")
 		.content((instance, holder, text) -> {

@@ -17,6 +17,7 @@ public class DollchanChanConfiguration extends ChanConfiguration {
 	private static final String KEY_CODE_ENABLED = "code_enabled";
 	private static final String CAPTCHA_TYPE = "dollchan";
 
+	public static final String REPORDING_REPORT = "report";
 	public static final String REPORDING_DELETE = "delete";
 	public static final String REPORDING_BAN = "ban";
 	public static final String REPORDING_BAN_DELETE_ALL = "ban_delete_all";
@@ -57,6 +58,7 @@ public class DollchanChanConfiguration extends ChanConfiguration {
 		Reporting reporting = new Reporting();
 		reporting.comment = true;
 		reporting.multiplePosts = true;
+		reporting.types.add(new Pair<>(REPORDING_REPORT, "Report"));
 		reporting.types.add(new Pair<>(REPORDING_DELETE, "Delete Post [MOD]"));
 		reporting.types.add(new Pair<>(REPORDING_BAN, "Ban User [MOD]"));
 		reporting.types.add(new Pair<>(REPORDING_BAN_DELETE_ALL, "Ban & Delete All [MOD]"));
