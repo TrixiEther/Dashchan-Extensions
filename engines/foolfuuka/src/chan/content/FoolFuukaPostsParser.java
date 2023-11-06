@@ -4,6 +4,7 @@ import android.net.Uri;
 import chan.content.model.FileAttachment;
 import chan.content.model.Post;
 import chan.content.model.Posts;
+import chan.content.model.PostsParser;
 import chan.text.ParseException;
 import chan.text.TemplateParser;
 import chan.util.StringUtils;
@@ -17,7 +18,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FoolFuukaPostsParser {
+public class FoolFuukaPostsParser implements PostsParser {
 	private final FoolFuukaChanLocator locator;
 
 	private boolean needResTo = false;

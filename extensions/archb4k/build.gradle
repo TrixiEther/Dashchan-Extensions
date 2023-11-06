@@ -1,0 +1,50 @@
+apply plugin: 'chan-extension'
+
+chan {
+    nameUpper 'ArchB4K'
+    packageName 'com.trixiether.dashchan.chan.archb4k'
+    versionName '1.0'
+    apiVersion 1
+    hosts 'arch.b4k.co'
+}
+
+dependencies {
+    implementation project(':engines:foolfuuka')
+}
+
+android {
+    signingConfigs {
+        release {
+
+            def keystoreProperties = new Properties()
+            try {
+                file('keystore.properties').newInputStream().withCloseable { keystoreProperties.load(it) }
+            } catch (IOException ignored) {
+                keystoreProperties = null
+            }
+
+            if (keystoreProperties == null) {
+                //git workflow build
+                System.out.println("keystoreProperties is null")
+                def key_file = System.getenv("KEYSTORE_FILENAME")
+                storeFile file(key_file != null ? key_file : "keystore/dashchan")
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("RELEASE_SIGN_KEY_ALIAS")
+                keyPassword System.getenv("RELEASE_SIGN_KEY_PASSWORD")
+
+            } else {
+                //local build
+                storeFile keystoreProperties['store.file']
+                storePassword keystoreProperties['store.password']
+                keyAlias keystoreProperties['key.alias']
+                keyPassword keystoreProperties['key.password']
+            }
+
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+}
