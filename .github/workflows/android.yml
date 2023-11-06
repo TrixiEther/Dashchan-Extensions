@@ -76,33 +76,33 @@ jobs:
         name: Dashchan${{ matrix.package.name }}.apk
         path: extensions/${{ matrix.package.module }}/build/outputs/apk/release/Dashchan${{ matrix.package.name }}-release.apk
 
-  deploy:
-    runs-on: ubuntu-latest
-    name: Deploy packages
-    needs: build
-    steps:
-    - name: Install aapt
-      run: sudo apt-get -y install aapt
-    - name: Install python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-    - run: pip install requests
-    - name: Checkout Dashchan-Meta
-      uses: actions/checkout@v3
-      with: 
-        repository: ${{ secrets.META_DASHCHAN_REPO }}
-        path: meta/
-    - uses: actions/download-artifact@v3
-      name: Download artifacts
-      with:
-        path: artifacts
-    - name: Move artifacts
-      run: /bin/cp -rf artifacts/* meta/update/package/*
-    - name: Run generate.py
-      run: python meta/generate.py
-    - name: Git Diff
-      working-directory: meta
-      run: |
-        git status
-        git diff
+#  deploy:
+#    runs-on: ubuntu-latest
+#    name: Deploy packages
+#    needs: build
+#    steps:
+#    - name: Install aapt
+#      run: sudo apt-get -y install aapt
+#    - name: Install python
+#      uses: actions/setup-python@v4
+#      with:
+#        python-version: '3.10'
+#    - run: pip install requests
+#    - name: Checkout Dashchan-Meta
+#      uses: actions/checkout@v3
+#      with: 
+#        repository: ${{ secrets.META_DASHCHAN_REPO }}
+#        path: meta/
+#    - uses: actions/download-artifact@v3
+#      name: Download artifacts
+#      with:
+#        path: artifacts
+#    - name: Move artifacts
+#      run: /bin/cp -rf artifacts/* meta/update/package/*
+#    - name: Run generate.py
+#      run: python meta/generate.py
+#    - name: Git Diff
+#      working-directory: meta
+#      run: |
+#        git status
+#        git diff
