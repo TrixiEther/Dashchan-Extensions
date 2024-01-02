@@ -40,6 +40,8 @@ public class SojakpartyChanConfiguration extends ChanConfiguration {
 		posting.allowSubject = true;
 		posting.optionSage = namesAndEmails;
 		posting.attachmentCount = 4;
+		posting.attachmentMimeTypes.add("application/pdf");
+		posting.attachmentMimeTypes.add("audio/*");
 		posting.attachmentMimeTypes.add("image/*");
 		posting.attachmentMimeTypes.add("video/webm");
 		posting.attachmentMimeTypes.add("video/mp4");
