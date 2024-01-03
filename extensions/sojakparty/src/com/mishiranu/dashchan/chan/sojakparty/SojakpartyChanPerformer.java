@@ -45,7 +45,9 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 		SojakpartyChanConfiguration configuration = SojakpartyChanConfiguration.get(this);
 		Uri uri = locator.buildPath(data.boardName, (data.isCatalog() ? "catalog"
 				: Integer.toString(data.pageNumber)) + ".json");
-		HttpResponse response = new HttpRequest(uri, data).setValidator(data.validator).perform();
+		HttpResponse response = new HttpRequest(uri, data)
+				.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
+				.setValidator(data.validator).perform();
 		HttpValidator validator = response.getValidator();
 		ArrayList<Posts> threads = new ArrayList<>();
 		try (InputStream input = response.open();
@@ -103,7 +105,9 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 		SojakpartyChanLocator locator = SojakpartyChanLocator.get(this);
 		Uri uri = locator.buildPath(data.boardName, "thread", data.threadNumber + ".json");
 		ArrayList<Post> posts = new ArrayList<>();
-		HttpResponse response = new HttpRequest(uri, data).setValidator(data.validator).perform();
+		HttpResponse response = new HttpRequest(uri, data)
+				.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
+				.setValidator(data.validator).perform();
 		try (InputStream input = response.open();
 			 JsonSerial.Reader reader = JsonSerial.reader(input)) {
 			reader.startObject();
@@ -139,7 +143,9 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 	public ReadBoardsResult onReadBoards(ReadBoardsData data) throws HttpException, InvalidResponseException {
 		SojakpartyChanLocator locator = SojakpartyChanLocator.get(this);
 		Uri uri = locator.buildPath();
-		String responseText = new HttpRequest(uri, data).perform().readString();
+		String responseText = new HttpRequest(uri, data)
+				.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
+				.perform().readString();
 		try {
 			return new ReadBoardsResult(new SojakpartyBoardsParser(responseText).convert());
 		} catch (ParseException e) {
@@ -191,7 +197,9 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 		SojakpartyChanLocator locator = SojakpartyChanLocator.get(this);
 		Uri contentUri = data.threadNumber != null ? locator.createThreadUri(data.boardName, data.threadNumber)
 				: locator.createBoardUri(data.boardName, 0);
-		String responseText = new HttpRequest(contentUri, data).perform().readString();
+		String responseText = new HttpRequest(contentUri, data)
+				.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
+				.perform().readString();
 		try {
 			AntispamFieldsParser.parseAndApply(responseText, entity, "board", "thread", "name", "email",
 					"subject", "body", "password", "file", "spoiler", "json_response", "_KAPTCHA", "_KAPTCHA_NOJS", "_KAPTCHA_KEY");
@@ -273,7 +281,9 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 		Uri uri = locator.buildPath("post.php");
 		JSONObject jsonObject = null;
 		try {
-			jsonObject = new JSONObject(new HttpRequest(uri, data).setPostMethod(entity)
+			jsonObject = new JSONObject(new HttpRequest(uri, data)
+					.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
+					.setPostMethod(entity)
 					.setRedirectHandler(HttpRequest.RedirectHandler.STRICT).perform().readString());
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -313,7 +323,9 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 		Uri uri = locator.buildPath("post.php");
 		JSONObject jsonObject = null;
 		try {
-			jsonObject = new JSONObject(new HttpRequest(uri, data).setPostMethod(entity)
+			jsonObject = new JSONObject(new HttpRequest(uri, data)
+					.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
+					.setPostMethod(entity)
 					.setRedirectHandler(HttpRequest.RedirectHandler.STRICT).perform().readString());
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -362,7 +374,9 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 
 			Uri uri = Uri.parse("https://sys.kolyma.net/kaptcha/kaptcha.php?key=" + key);
 			Bitmap image;
-			String response = new HttpRequest(uri, data).perform().readString();
+			String response = new HttpRequest(uri, data)
+					.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
+					.perform().readString();
 			byte[] imageBytes = Base64.decode(response.split(", ")[1], 0);
 			image = imageBytes.length == 0 ? null
 					: BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
