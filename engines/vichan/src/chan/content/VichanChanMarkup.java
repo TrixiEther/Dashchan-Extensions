@@ -9,7 +9,7 @@ import chan.text.CommentEditor;
 
 public class VichanChanMarkup extends ChanMarkup {
 
-    private static final int SUPPORTED_TAGS = TAG_BOLD | TAG_ITALIC | TAG_SPOILER | TAG_QUOTE;
+    protected static final int SUPPORTED_TAGS = TAG_BOLD | TAG_ITALIC | TAG_SPOILER | TAG_QUOTE;
 
     public VichanChanMarkup() {
         addTag("strong", TAG_BOLD);
