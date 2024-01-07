@@ -16,6 +16,6 @@ jobs:
           repository: "TrixiEther/Dashchan-Extensions"
       - uses: actions/labeler@v5.0.0-alpha.1
         with:
-          repo-token: "${{ secrets.DASHCHAN_REPO_TOKEN }}"
+          repo-token: "${{ secrets.ACCESS_TOKEN }}"
           sync-labels: true
           configuration-path: ".github/labeler.config.yml"
