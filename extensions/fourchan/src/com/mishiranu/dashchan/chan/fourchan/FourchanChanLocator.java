@@ -130,9 +130,7 @@ public class FourchanChanLocator extends ChanLocator {
 	}
 
 	public Uri createSysUri(String boardName, String... segments) {
-		FourchanChanConfiguration configuration = FourchanChanConfiguration.get(this);
-		String host = !StringUtils.isEmpty(boardName) && configuration.isSafeForWork(boardName) ? HOST_SYS_SAFE : HOST_SYS;
-		return buildPathWithSchemeHost(true, host, segments);
+		return buildPathWithSchemeHost(true, HOST_SYS, segments);
 	}
 
 	public Uri createSearchApiUri(String... alternation) {
