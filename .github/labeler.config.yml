@@ -1,12 +1,12 @@
 bug:
 - all:
     - base-branch: ['master']
-    - head-branch: ['^[\D\d]+\/bug\/[\D\d]+']
+    - head-branch: ['^[\D\d]+\/(bug|fix)\/[\D\d]+|^(bug|fix)\/[\D\d]+']
 
 enhancement:
 - all:
     - base-branch: ['master']
-    - head-branch: ['^[\D\d]+\/enhancement\/[\D\d]+']
+    - head-branch: ['^[\D\d]+\/(enhancement|feature)\/[\D\d]+|^(enhancement|feature)\/[\D\d]+']
 
 documentation:
 - any:
