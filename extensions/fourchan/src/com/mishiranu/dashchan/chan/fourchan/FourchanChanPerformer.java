@@ -77,7 +77,7 @@ public class FourchanChanPerformer extends ChanPerformer {
 		HttpResponse response = null;
 		if (postNumber != null) {
 			FourchanChanLocator locator = FourchanChanLocator.get(this);
-			Uri uri = locator.createSysUri(boardName, "imgboard.php").buildUpon()
+			Uri uri = locator.createSysUri(boardName, boardName, "imgboard.php").buildUpon()
 					.appendQueryParameter("mode", "report").appendQueryParameter("no", postNumber).build();
 			response = new HttpRequest(uri, preset).setSuccessOnly(false)
 					.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
