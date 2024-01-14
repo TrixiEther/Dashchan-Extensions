@@ -129,7 +129,7 @@ public class FourchanChanLocator extends ChanLocator {
 		return buildPathWithSchemeHost(true, HOST_STATIC, "image", "flags", boardName, fileName);
 	}
 
-	public Uri createSysUri(String boardName, String... segments) {
+	public Uri createSysUri(String... segments) {
 		return buildPathWithSchemeHost(true, HOST_SYS, segments);
 	}
 
