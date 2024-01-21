@@ -47,6 +47,7 @@ public class DollchanPostsParser {
 	protected ArrayList<FileAttachment> attachments = null;
 	protected FileAttachment attachment;
 	protected ArrayList<Posts> threads;
+	protected ArrayList<Icon> icons;
 	protected final ArrayList<Post> posts = new ArrayList<>();
 	protected int maxNumberOfPages = 0;
 
@@ -87,6 +88,7 @@ public class DollchanPostsParser {
 					String number = attributes.get("value");
 					if (holder.post == null) {
 						holder.post = new Post();
+						holder.icons = null;
 					}
 					holder.post.setPostNumber(number);
 					holder.parent = number;
@@ -113,6 +115,7 @@ public class DollchanPostsParser {
 		.open((instance, holder, tagName, attributes) -> {
 			if (holder.post == null) {
 				holder.post = new Post();
+				holder.icons = null;
 			}
 			if (holder.attachments == null) {
 				holder.attachments = new ArrayList<>();
@@ -218,8 +221,26 @@ public class DollchanPostsParser {
 			String title = attributes.get("title");
 			String src = attributes.get("src");
 			if (title != null && src != null) {
+				if (holder.icons == null) {
+					holder.icons = new ArrayList<>();
+				}
 				Uri fullSrc = holder.locator.buildPath(src);
-				holder.post.setIcons(new Icon(holder.locator, fullSrc, title));
+				holder.icons.add(new Icon(holder.locator, fullSrc, title));
+				holder.post.setIcons(holder.icons);
+			}
+			return false;
+		})
+		.equals("img", "class", "poster-achievement")
+		.open((instance, holder, tagName, attributes) -> {
+			String title = attributes.get("title");
+			String src = attributes.get("src");
+			if (title != null && src != null) {
+				if (holder.icons == null) {
+					holder.icons = new ArrayList<>();
+				}
+				Uri fullSrc = holder.locator.buildPath(src);
+				holder.icons.add(new Icon(holder.locator, fullSrc, title));
+				holder.post.setIcons(holder.icons);
 			}
 			return false;
 		})
@@ -266,6 +287,7 @@ public class DollchanPostsParser {
 			holder.post.setComment(text);
 			holder.posts.add(holder.post);
 			holder.post = null;
+			holder.icons = null;
 		})
 		.equals("div", "class", "omittedposts")
 		.content((instance, holder, text) -> {
