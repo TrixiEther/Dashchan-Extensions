@@ -566,6 +566,10 @@ public class FourchanChanPerformer extends ChanPerformer {
 			if (threadNumber != null) {
 				builder.appendQueryParameter("thread_id", threadNumber);
 			}
+			String captchaTicket = getCaptchaTicket();
+			if (captchaTicket != null) {
+				builder.appendQueryParameter("ticket", captchaTicket);
+			}
 			Uri uri = builder.build();
 			String challenge;
 			Bitmap image;
@@ -578,26 +582,29 @@ public class FourchanChanPerformer extends ChanPerformer {
 							.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
 							.perform()
 							.readString());
-					String error = jsonObject.optString("error");
-					boolean captchaOnCooldown = "You have to wait a while before doing this again".equals(error);
-					if (captchaOnCooldown) {
-						int captchaCooldownSeconds = jsonObject.optInt("cd", -1);
-						if(captchaCooldownSeconds == -1) throw new HttpException(0, null);
-						int reasonableCaptchaCooldownWaitSeconds = 10;
-						if(captchaCooldownSeconds <= reasonableCaptchaCooldownWaitSeconds){
+					String newCaptchaTicket = jsonObject.optString("ticket");
+					if (!newCaptchaTicket.isEmpty()) {
+						saveCaptchaTicket(newCaptchaTicket);
+					}
+					boolean captchaOnCooldown = "You have to wait a while before doing this again".equals(jsonObject.optString("error"));
+					boolean captchaTicketOnCooldown = !captchaOnCooldown && jsonObject.has("pcd");
+					if (captchaOnCooldown || captchaTicketOnCooldown) {
+						String cooldownFieldName = captchaOnCooldown ? "cd" : "pcd";
+						int cooldownSeconds = jsonObject.optInt(cooldownFieldName, -1);
+						if (cooldownSeconds == -1) throw new HttpException(0, null);
+						int reasonableCooldownWaitSeconds = 10;
+						if (cooldownSeconds <= reasonableCooldownWaitSeconds) {
 							try {
 								/*  The server returns only whole cooldown seconds in the response but it can actually be decimal.
 									For example: the server returns 10 seconds cooldown but in reality it is 10.5 seconds.
 									Add 1 second to the cooldown to avoid this issue.
 								*/
-								Thread.sleep((captchaCooldownSeconds + 1) * 1000L);
-							}
-							catch (InterruptedException e){
+								Thread.sleep((cooldownSeconds + 1) * 1000L);
+							} catch (InterruptedException e) {
 								throw new HttpException(0, null);
 							}
-						}
-						else {
-							throw new HttpException(0, configuration.getResources().getQuantityString(R.plurals.capthca_cooldown_message__format, captchaCooldownSeconds, captchaCooldownSeconds));
+						} else {
+							throw new HttpException(0, configuration.getResources().getQuantityString(R.plurals.capthca_cooldown_message__format, cooldownSeconds, cooldownSeconds));
 						}
 					} else {
 						challenge = jsonObject.getString("challenge");
@@ -668,6 +675,18 @@ public class FourchanChanPerformer extends ChanPerformer {
 			result.setCaptchaType(captchaType);
 		}
 		return result;
+	}
+
+	private static final String CAPTCHA_TICKET_KEY = "captcha_ticket";
+
+	private void saveCaptchaTicket(String captchaTicket) {
+		FourchanChanConfiguration configuration = FourchanChanConfiguration.get(this);
+		configuration.set(null, CAPTCHA_TICKET_KEY, captchaTicket);
+	}
+
+	private String getCaptchaTicket() {
+		FourchanChanConfiguration configuration = FourchanChanConfiguration.get(this);
+		return configuration.get(null, CAPTCHA_TICKET_KEY, null);
 	}
 
 	private static final SimpleDateFormat DATE_FORMAT_BAN = new SimpleDateFormat("MMMM d yyyy", Locale.US);
