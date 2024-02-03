@@ -677,14 +677,16 @@ public class FourchanChanPerformer extends ChanPerformer {
 		return result;
 	}
 
+	private static final String CAPTCHA_TICKET_KEY = "captcha_ticket";
+
 	private void saveCaptchaTicket(String captchaTicket) {
 		FourchanChanConfiguration configuration = FourchanChanConfiguration.get(this);
-		configuration.set(null, "captcha_ticket", captchaTicket);
+		configuration.set(null, CAPTCHA_TICKET_KEY, captchaTicket);
 	}
 
 	private String getCaptchaTicket() {
 		FourchanChanConfiguration configuration = FourchanChanConfiguration.get(this);
-		return configuration.get(null, "captcha_ticket", null);
+		return configuration.get(null, CAPTCHA_TICKET_KEY, null);
 	}
 
 	private static final SimpleDateFormat DATE_FORMAT_BAN = new SimpleDateFormat("MMMM d yyyy", Locale.US);
