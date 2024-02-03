@@ -561,7 +561,7 @@ public class FourchanChanPerformer extends ChanPerformer {
 				return new ReadCaptchaResult(CaptchaState.NEED_LOAD, null);
 			}
 			String threadNumber = data.requirement == null ? data.threadNumber : "1";
-			Uri.Builder builder = locator.createSysUri(data.boardName,"captcha").buildUpon()
+			Uri.Builder builder = locator.createSysUri("captcha").buildUpon()
 					.appendQueryParameter("board", data.boardName);
 			if (threadNumber != null) {
 				builder.appendQueryParameter("thread_id", threadNumber);
@@ -783,7 +783,7 @@ public class FourchanChanPerformer extends ChanPerformer {
 		}
 
 		FourchanChanLocator locator = FourchanChanLocator.get(this);
-		Uri uri = locator.createSysUri(data.boardName,data.boardName, "post");
+		Uri uri = locator.createSysUri(data.boardName, "post");
 		FourchanChanConfiguration configuration = FourchanChanConfiguration.get(this);
 		String fourchanPassCookie = getFourchanPassCookie(configuration, data.boardName);
 		HttpRequest request = new HttpRequest(uri, data)
@@ -871,7 +871,7 @@ public class FourchanChanPerformer extends ChanPerformer {
 	@Override
 	public SendDeletePostsResult onSendDeletePosts(SendDeletePostsData data) throws HttpException, ApiException {
 		FourchanChanLocator locator = FourchanChanLocator.get(this);
-		Uri uri = locator.createSysUri(data.boardName,data.boardName, "imgboard.php");
+		Uri uri = locator.createSysUri(data.boardName, "imgboard.php");
 		UrlEncodedEntity entity = new UrlEncodedEntity("mode", "usrdel", "pwd", data.password);
 		for (String postNumber : data.postNumbers) {
 			entity.add(postNumber, "delete");
@@ -923,7 +923,7 @@ public class FourchanChanPerformer extends ChanPerformer {
 		ReportReason reportReason = ReportReason.fromKey(data.type);
 		FourchanChanConfiguration configuration = FourchanChanConfiguration.get(this);
 		FourchanChanLocator locator = FourchanChanLocator.get(this);
-		Uri uri = locator.createSysUri(data.boardName,data.boardName, "imgboard.php").buildUpon()
+		Uri uri = locator.createSysUri(data.boardName, "imgboard.php").buildUpon()
 				.appendQueryParameter("mode", "report").appendQueryParameter("no", data.postNumbers.get(0)).build();
 		boolean retry = false;
 		String message;
