@@ -17,6 +17,7 @@ public class DvachChanLocator extends ChanLocator {
 
 	public DvachChanLocator() {
 		addChanHost("2ch.hk");
+		addChanHost("2ch.life");
 		addChanHost("2ch.pm");
 		addChanHost("beta.2ch.hk");
 		addConvertableChanHost("2ch.cm");
