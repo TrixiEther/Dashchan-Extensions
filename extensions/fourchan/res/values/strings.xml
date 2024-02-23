@@ -3,9 +3,6 @@
 
 	<string name="preference_math_tags">Handle [math] tags</string>
 	<string name="preference_math_tags_summary">Show image links using quicklatex.com web service</string>
-	<string name="preference_fix_nsfw_boards">Fix image posting</string>
-	<string name="preference_fix_nsfw_boards_summary">Use non-browser User-Agent header on NSFW boards
-		(may break CloudFlare bypass)</string>
 	<string name="select_the_most_readable_captcha">Select the most readable captcha</string>
 	<plurals name="capthca_cooldown_message__format">
 		<item quantity="one">Retry attempt after %d second</item>
