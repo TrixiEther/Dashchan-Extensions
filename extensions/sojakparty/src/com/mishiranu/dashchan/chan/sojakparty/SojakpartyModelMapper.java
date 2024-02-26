@@ -180,27 +180,28 @@ public class SojakpartyModelMapper {
 				case "com": {
 					String comment = reader.nextString()
 							.replaceAll("%23", "#")
+							.replaceAll("<div", "<span")
+							.replaceAll("</div", "</span")
 							// gemerald text
-							.replaceAll("<span style=\"background: linear-gradient\\(to left, red, orange , yellow, green, cyan, blue, violet\\);-webkit-background-clip: text;-webkit-text-fill-color: transparent;\"><span class=\"glow\">(.*?)</span></span>",
-									"<span style=\"color:#00FE20\">\uD83D\uDC8E $1 \uD83D\uDC8E</span>")
+							.replaceAll("<span style=\"background: linear-gradient\\(to left, red, orange , yellow, green, cyan, blue, violet\\);-webkit-background-clip: text;-webkit-text-fill-color: transparent;\"><span class=\"glow\">(<[^/]*>)*(.*?)</span></span>",
+									"<span style=\"color:#00FE20\">$1\uD83D\uDC8E $2 \uD83D\uDC8E</span>")
 							// diamond text
-							.replaceAll("<span style=\"background: linear-gradient\\(to left, red, orange , yellow, green, cyan, blue, violet\\);-webkit-background-clip: text;-webkit-text-fill-color: transparent;\"><span style=\"text-shadow:0px 0px 40px #36d7f7, 0px 0px 2px #36d7f7\">(.*?)</span></span>",
-									"<span style=\"color:#36D7F7\">\uD83D\uDC8E $1 \uD83D\uDC8E</span>")
+							.replaceAll("<span style=\"background: linear-gradient\\(to left, red, orange , yellow, green, cyan, blue, violet\\);-webkit-background-clip: text;-webkit-text-fill-color: transparent;\"><span style=\"text-shadow:0px 0px 40px #36d7f7, 0px 0px 2px #36d7f7\">(<[^/]*>)*(.*?)</span></span>",
+									"<span style=\"color:#36D7F7\">$1\uD83D\uDC8E $2 \uD83D\uDC8E</span>")
 							// gold text
-							.replaceAll("<span style=\"background: linear-gradient\\(to left, red, orange , yellow, green, cyan, blue, violet\\);-webkit-background-clip: text;-webkit-text-fill-color: transparent;\"><span style=\"text-shadow:0px 0px 40px #fffb00, 0px 0px 2px #fffb00\">(.*?)</span></span>",
-									"<span style=\"color:#FFFB00\">\uD83C\uDFC6 $1 \uD83C\uDFC6</span>")
+							.replaceAll("<span style=\"background: linear-gradient\\(to left, red, orange , yellow, green, cyan, blue, violet\\);-webkit-background-clip: text;-webkit-text-fill-color: transparent;\"><span style=\"text-shadow:0px 0px 40px #fffb00, 0px 0px 2px #fffb00\">(<[^/]*>)*(.*?)</span></span>",
+									"<span style=\"color:#FFFB00\">$1\uD83C\uDFC6 $2 \uD83C\uDFC6</span>")
 							// rainbow text
-							.replaceAll("<span style=\"background: linear-gradient\\(to left, red, orange , yellow, green, cyan, blue, violet\\);-webkit-background-clip: text;-webkit-text-fill-color: transparent;\">(.*?)</span>",
-									"<span>\uD83C\uDF08 $1 \uD83C\uDF08</span>")
-							.replaceAll("<span class=\"rotate\">(.*?)</span>","<span>\uD83D\uDD03 $1 \uD83D\uDD03</span>") // spin text
-							.replaceAll("<big>(.*?)</big>","<span>➕ $1 ➕</span>") // big text
-							.replaceAll("(?<=<span )class=\"glow", "style=\"color:#00FE20") // glow text
-							.replaceAll("(?<=<span )style=\"text-shadow:0px 0px 40px #36d7f7, 0px 0px 2px #36d7f7", "style=\"color:#36D7F7") // blue glow text
-							.replaceAll("(?<=<span )style=\"text-shadow:0px 0px 40px #fffb00, 0px 0px 2px #fffb00", "style=\"color:#FFFB00") // sneed text
-							.replaceAll("(?<=<span )class=\"heading2", "style=\"color:#2424AD") // blue text
-							.replaceAll("(?<=<span )class=\"heading", "style=\"color:#AF0A0F") // red text
-							.replaceAll("(?<=<span )class=\"quote2", "style=\"color:#F6750B") // orange quote
-							.replaceAll("<font color=\"FD3D98\"><b>(.*?)</b></font>", "<strong><span style=\"color:#FD3D98\">$1</span></strong>");
+							.replaceAll("<span style=\"background: linear-gradient\\(to left, red, orange , yellow, green, cyan, blue, violet\\);-webkit-background-clip: text;-webkit-text-fill-color: transparent;\">(<[^/]*>)*(.*?)</span>",
+									"<span>$1\uD83C\uDF08 $2 \uD83C\uDF08</span>")
+							.replaceAll("<span class=\"rotate\">(<[^/]*>)*(.*?)</span>","<span>$1\uD83D\uDD03 $2 \uD83D\uDD03</span>") // spin text
+							.replaceAll("<span class=\"glow\">(.*?)</span>", "<span style=\"color:#00FE20\">$1</span>") // glow text
+							.replaceAll("<span style=\"text-shadow:0px 0px 40px #36d7f7, 0px 0px 2px #36d7f7\">(.*?)</span>", "<span style=\"color:#36D7F7\">$1</span>") // blue glow text
+							.replaceAll("<span style=\"text-shadow:0px 0px 40px #fffb00, 0px 0px 2px #fffb00\">(.*?)</span>", "<span style=\"color:#FFFB00\">$1</span>") // sneed text
+							.replaceAll("<span class=\"heading\">(.*?)</span>","<span style=\"color:#AF0A0F\">$1</span>") // red text
+							.replaceAll("<span class=\"heading2\">(.*?)</span>","<span style=\"color:#2424AD\">$1</span>") // blue text
+							.replaceAll("<span class=\"quote2\">(.*?)</span>", "<span style=\"color:#F6750B\">$1</span>") // orange quote
+							.replaceAll("<font color=\"FD3D98\"><b>(.*?)</b></font>", "<strong><span style=\"color:#FD3D98\">$1</span></strong>"); // pink text
 					post.setComment(comment);
 					break;
 				}
