@@ -7,16 +7,11 @@ import chan.content.ChanConfiguration;
 public class SojakpartyChanConfiguration extends ChanConfiguration {
 
 	public static final String CAPTCHA_TYPE_NONE = "None";
-	public static final String CAPTCHA_TYPE_KAPTCHA = "Kaptcha";
-
-	public static final String KAPTCHA_REPLIES = "KaptchaReplies";
 
 	public SojakpartyChanConfiguration() {
 		request(OPTION_READ_POSTS_COUNT);
 		addCaptchaType(CAPTCHA_TYPE_NONE);
-		addCaptchaType(CAPTCHA_TYPE_KAPTCHA);
 		addCaptchaType(CAPTCHA_TYPE_RECAPTCHA_2);
-		addCustomPreference(KAPTCHA_REPLIES, false);
 		setDefaultName("Chud");
 	}
 
@@ -71,12 +66,6 @@ public class SojakpartyChanConfiguration extends ChanConfiguration {
 		Captcha captcha;
 
 		switch (captchaType) {
-			case CAPTCHA_TYPE_KAPTCHA:
-				captcha = new Captcha();
-				captcha.title = captchaType;
-				captcha.input = Captcha.Input.ALL;
-				captcha.validity = Captcha.Validity.SHORT_LIFETIME;
-				break;
 			case CAPTCHA_TYPE_NONE:
 				captcha = new Captcha();
 				captcha.title = CAPTCHA_TYPE_NONE;
@@ -97,20 +86,11 @@ public class SojakpartyChanConfiguration extends ChanConfiguration {
 		CustomPreference customPreference;
 
 		switch (key) {
-			case KAPTCHA_REPLIES:
-				customPreference = new CustomPreference();
-				customPreference.title = resources.getString(R.string.preference_kaptcha_replies);
-				customPreference.summary = resources.getString(R.string.preference_kaptcha_replies_summary);
-				break;
 			default:
 				customPreference = null;
 				break;
 		}
 
 		return customPreference;
-	}
-
-	public boolean isKaptchaRepliesEnabled() {
-		return get(null, KAPTCHA_REPLIES, false);
 	}
 }

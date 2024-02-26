@@ -1,7 +1,5 @@
 package com.mishiranu.dashchan.chan.sojakparty;
 
-import static com.mishiranu.dashchan.chan.sojakparty.SojakpartyChanConfiguration.CAPTCHA_TYPE_KAPTCHA;
-
 import static chan.content.ChanConfiguration.CAPTCHA_TYPE_RECAPTCHA_2;
 
 import java.io.IOException;
@@ -188,9 +186,6 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 			String captchaType = data.captchaData.get(CAPTCHA_DATA_KEY_TYPE);
 			if (captchaType.equals(CAPTCHA_TYPE_RECAPTCHA_2)) {
 				entity.add("g-recaptcha-response", data.captchaData.get(CaptchaData.INPUT));
-			} else if (captchaType.equals(CAPTCHA_TYPE_KAPTCHA)) {
-				entity.add("_KAPTCHA_KEY", data.captchaData.get(CaptchaData.CHALLENGE));
-				entity.add("_KAPTCHA", StringUtils.emptyIfNull(data.captchaData.get(CaptchaData.INPUT)));
 			}
 		}
 
@@ -202,7 +197,7 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 				.perform().readString();
 		try {
 			AntispamFieldsParser.parseAndApply(responseText, entity, "board", "thread", "name", "email",
-					"subject", "body", "password", "file", "spoiler", "json_response", "_KAPTCHA", "_KAPTCHA_NOJS", "_KAPTCHA_KEY");
+					"subject", "body", "password", "file", "spoiler", "json_response");
 		} catch (ParseException e) {
 			throw new InvalidResponseException();
 		}
@@ -337,7 +332,7 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 			return null;
 		}
 		String errorMessage = jsonObject.optString("error");
-		if (errorMessage != null) {
+		if (!errorMessage.isEmpty()) {
 			CommonUtils.writeLog("Soyjak.party report message", errorMessage);
 			throw new ApiException(errorMessage);
 		}
@@ -345,10 +340,9 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 	}
 
 	@Override
-	public ReadCaptchaResult onReadCaptcha(ReadCaptchaData data) throws InvalidResponseException, HttpException {
+	public ReadCaptchaResult onReadCaptcha(ReadCaptchaData data) {
 		String captchaType = data.captchaType;
 		SojakpartyChanLocator locator = SojakpartyChanLocator.get(this);
-		SojakpartyChanConfiguration configuration = SojakpartyChanConfiguration.get(this);
 		ReadCaptchaResult result;
 		if (SojakpartyChanConfiguration.CAPTCHA_TYPE_RECAPTCHA_2.equals(captchaType)) {
 			CaptchaData captchaData = new CaptchaData();
@@ -360,33 +354,6 @@ public class SojakpartyChanPerformer extends ChanPerformer {
 		} else if (SojakpartyChanConfiguration.CAPTCHA_TYPE_NONE.equals(captchaType)) {
 			captchaType = null;
 			result = new ReadCaptchaResult(CaptchaState.SKIP, null);
-		} else if (CAPTCHA_TYPE_KAPTCHA.equals(captchaType)) {
-			if (data.threadNumber != null && !configuration.isKaptchaRepliesEnabled()) {
-				return new ReadCaptchaResult(CaptchaState.SKIP, null);
-			}
-			String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789=-";
-			SecureRandom rnd = new SecureRandom();
-			StringBuilder keyBuilder = new StringBuilder(64);
-			for(int i = 0; i < 64; i++) {
-				keyBuilder.append(chars.charAt(rnd.nextInt(chars.length())));
-			}
-			String key = keyBuilder.toString();
-
-			Uri uri = Uri.parse("https://sys.kolyma.net/kaptcha/kaptcha.php?key=" + key);
-			Bitmap image;
-			String response = new HttpRequest(uri, data)
-					.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
-					.perform().readString();
-			byte[] imageBytes = Base64.decode(response.split(", ")[1], 0);
-			image = imageBytes.length == 0 ? null
-					: BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-			if (image == null) {
-				throw new InvalidResponseException(new Exception("Image is null"));
-			}
-			CaptchaData captchaData = new CaptchaData();
-			captchaData.put(CAPTCHA_DATA_KEY_TYPE, CAPTCHA_TYPE_KAPTCHA);
-			captchaData.put(CaptchaData.CHALLENGE, key);
-			result = new ReadCaptchaResult(CaptchaState.CAPTCHA, captchaData).setImage(image);
 		} else {
 			throw new IllegalStateException();
 		}

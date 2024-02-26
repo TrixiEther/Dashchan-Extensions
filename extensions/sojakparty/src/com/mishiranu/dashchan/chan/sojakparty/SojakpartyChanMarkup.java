@@ -21,6 +21,8 @@ public class SojakpartyChanMarkup extends ChanMarkup {
 		addTag("span", "quote", TAG_QUOTE);
 		addColorable("div");
 		addColorable("span");
+		addColorable("font");
+		addColorable("b");
 	}
 
 	@Override
