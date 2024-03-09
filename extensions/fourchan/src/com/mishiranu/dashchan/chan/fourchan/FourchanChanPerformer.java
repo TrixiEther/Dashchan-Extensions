@@ -55,9 +55,6 @@ public class FourchanChanPerformer extends ChanPerformer {
 
 	private final HashMap<String, Long> lastRulesUpdate = new HashMap<>();
 
-	private final String USER_AGENT_HTTP_HEADER_NAME = "User-Agent";
-	private final String USER_AGENT_HTTP_HEADER_VALUE = "Dashchan-Fourchan";
-
 	private void updateBoardRules(HttpRequest.Preset preset,
 			String boardName, List<Posts> threads) throws HttpException {
 		Long update;
@@ -80,7 +77,6 @@ public class FourchanChanPerformer extends ChanPerformer {
 			Uri uri = locator.createSysUri(boardName, "imgboard.php").buildUpon()
 					.appendQueryParameter("mode", "report").appendQueryParameter("no", postNumber).build();
 			response = new HttpRequest(uri, preset).setSuccessOnly(false)
-					.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
 					.perform();
 		}
 		List<ReportReason> reportReasons = Collections.emptyList();
@@ -488,7 +484,6 @@ public class FourchanChanPerformer extends ChanPerformer {
 		UrlEncodedEntity entity = new UrlEncodedEntity("act", "do_login", "id", token, "pin", pin, "long_login", "yes");
 		HttpResponse response = new HttpRequest(uri, preset).setPostMethod(entity)
 				.setRedirectHandler(HttpRequest.RedirectHandler.STRICT)
-				.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
 				.perform();
 		String responseText = response.readString();
 		Matcher matcher = PATTERN_AUTH_MESSAGE.matcher(responseText);
@@ -579,7 +574,6 @@ public class FourchanChanPerformer extends ChanPerformer {
 				try {
 					JSONObject jsonObject = new JSONObject(new HttpRequest(uri, data)
 							.addCookie(COOKIE_FOURCHAN_PASS, fourchanPassCookie)
-							.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
 							.perform()
 							.readString());
 					String newCaptchaTicket = jsonObject.optString("ticket");
@@ -811,21 +805,7 @@ public class FourchanChanPerformer extends ChanPerformer {
 				.addHeader("Sec-Fetch-Dest", "document")
 				.addHeader("Sec-Fetch-Mode", "navigate")
 				.addHeader("Sec-Fetch-Site", "same-site")
-				.addHeader("Sec-Fetch-User", "?1")
-				.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE);
-
-		/*
-		As for 20.02.23, both this nsfw fixes break posting, ignore for now
-		boolean nsfwFix = !configuration.isSafeForWork(data.boardName) && configuration.isFixNsfwBoardsEnabled();
-		if (nsfwFix) {
-			// More reliable fix: add non-browser User-Agent (breaks CloudFlare bypass)
-			request.addHeader("User-Agent", "curl/7.64.0");
-		} else {
-			// Less reliable fix: works in /b/, doesn't work in /bant/
-			request.addHeader("Accept", "text/html").addHeader("Accept-Language", "en")
-					.addHeader("Referer", uri.toString());
-		}
-		 */
+				.addHeader("Sec-Fetch-User", "?1");
 
 		HttpResponse response = request.setPostMethod(entity)
 				.setRedirectHandler(HttpRequest.RedirectHandler.STRICT).perform();
@@ -900,7 +880,6 @@ public class FourchanChanPerformer extends ChanPerformer {
 		}
 		String responseText = new HttpRequest(uri, data).setPostMethod(entity)
 				.setRedirectHandler(HttpRequest.RedirectHandler.STRICT)
-				.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
 				.perform()
 				.readString();
 		Matcher matcher = PATTERN_POST_ERROR.matcher(responseText);
@@ -965,7 +944,6 @@ public class FourchanChanPerformer extends ChanPerformer {
 			HttpResponse response = new HttpRequest(uri, data).setPostMethod(entity)
 					.addCookie(COOKIE_FOURCHAN_PASS, fourchanPassCookie)
 					.setRedirectHandler(HttpRequest.RedirectHandler.STRICT)
-					.addHeader(USER_AGENT_HTTP_HEADER_NAME, USER_AGENT_HTTP_HEADER_VALUE)
 					.perform();
 			handleFourchanPass(response, data.boardName);
 			String responseText = response.readString();

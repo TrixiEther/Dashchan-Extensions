@@ -26,7 +26,6 @@ public class FourchanChanConfiguration extends ChanConfiguration {
 	private static final String KEY_REPORT_REASONS = "report_reasons";
 
 	private static final String KEY_MATH_TAGS = "math_tags";
-	private static final String KEY_FIX_NSFW_BOARDS = "fix_nsfw_boards";
 
 	public FourchanChanConfiguration() {
 		request(OPTION_READ_THREAD_PARTIALLY);
@@ -36,7 +35,6 @@ public class FourchanChanConfiguration extends ChanConfiguration {
 		addCaptchaType(CAPTCHA_TYPE_4CHAN_CAPTCHA);
 		addCaptchaType(CAPTCHA_TYPE_RECAPTCHA_2);
 		addCustomPreference(KEY_MATH_TAGS, false);
-		addCustomPreference(KEY_FIX_NSFW_BOARDS, true);
 	}
 
 	@Override
@@ -130,12 +128,6 @@ public class FourchanChanConfiguration extends ChanConfiguration {
 			customPreference.title = resources.getString(R.string.preference_math_tags);
 			customPreference.summary = resources.getString(R.string.preference_math_tags_summary);
 			return customPreference;
-		} else if (KEY_FIX_NSFW_BOARDS.equals(key)) {
-			Resources resources = getResources();
-			CustomPreference customPreference = new CustomPreference();
-			customPreference.title = resources.getString(R.string.preference_fix_nsfw_boards);
-			customPreference.summary = resources.getString(R.string.preference_fix_nsfw_boards_summary);
-			return customPreference;
 		}
 		return null;
 	}
@@ -152,10 +144,6 @@ public class FourchanChanConfiguration extends ChanConfiguration {
 
 	public boolean isMathTagsHandlingEnabled() {
 		return get(null, KEY_MATH_TAGS, false);
-	}
-
-	public boolean isFixNsfwBoardsEnabled() {
-		return get(null, KEY_FIX_NSFW_BOARDS, true);
 	}
 
 	public boolean isSafeForWork(String boardName) {
