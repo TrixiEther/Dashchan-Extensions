@@ -19,6 +19,7 @@ public class SojakpartyChanMarkup extends ChanMarkup {
 		addTag("code", TAG_CODE);
 		addTag("span", "spoiler", TAG_SPOILER);
 		addTag("span", "quote", TAG_QUOTE);
+		addTag("big", TAG_HEADING);
 		addColorable("div");
 		addColorable("span");
 	}
