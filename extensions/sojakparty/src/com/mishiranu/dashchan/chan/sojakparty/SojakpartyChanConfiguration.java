@@ -82,15 +82,6 @@ public class SojakpartyChanConfiguration extends ChanConfiguration {
 
 	@Override
 	public CustomPreference obtainCustomPreferenceConfiguration(String key) {
-		Resources resources = getResources();
-		CustomPreference customPreference;
-
-		switch (key) {
-			default:
-				customPreference = null;
-				break;
-		}
-
-		return customPreference;
+		return null;
 	}
 }
