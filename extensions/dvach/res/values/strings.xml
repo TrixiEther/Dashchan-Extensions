@@ -2,4 +2,5 @@
 
 <resources>
     <string name="preference_captcha_full_keyboard">Use full keyboard for captcha</string>
+    <string name="emoji_captcha_input">Select all icons from the picture (any order)</string>
 </resources>

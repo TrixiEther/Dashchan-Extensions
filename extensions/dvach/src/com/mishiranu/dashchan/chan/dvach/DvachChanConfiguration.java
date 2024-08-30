@@ -17,12 +17,14 @@ import org.json.JSONObject;
 
 public class DvachChanConfiguration extends ChanConfiguration {
 	public static final String CAPTCHA_TYPE_2CH_CAPTCHA = "2ch_captcha";
+	public static final String CAPTCHA_TYPE_2CH_EMOJI_CAPTCHA = "emoji_captcha";
 
 	public static final Map<String, String> CAPTCHA_TYPES;
 
 	static {
 		Map<String, String> captchaTypes = new LinkedHashMap<>();
 		captchaTypes.put(CAPTCHA_TYPE_2CH_CAPTCHA, "2chcaptcha");
+		captchaTypes.put(CAPTCHA_TYPE_2CH_EMOJI_CAPTCHA, "emoji");
 		captchaTypes.put(CAPTCHA_TYPE_RECAPTCHA_2, "recaptcha");
 		captchaTypes.put(CAPTCHA_TYPE_RECAPTCHA_2_INVISIBLE, "invisible_recaptcha");
 		CAPTCHA_TYPES = Collections.unmodifiableMap(captchaTypes);
@@ -69,15 +71,23 @@ public class DvachChanConfiguration extends ChanConfiguration {
 
 	@Override
 	public Captcha obtainCustomCaptchaConfiguration(String captchaType) {
-		if (CAPTCHA_TYPE_2CH_CAPTCHA.equals(captchaType)) {
-			Captcha captcha = new Captcha();
-			captcha.title = "2ch Captcha";
-			captcha.input = Captcha.Input.ALL;
-			captcha.validity = Captcha.Validity.IN_THREAD;
-			captcha.ttl = CAPTCHA_TTL;
-			return captcha;
+		Captcha captcha = new Captcha();
+		switch (captchaType) {
+			case CAPTCHA_TYPE_2CH_CAPTCHA:
+				captcha.title = "2ch Captcha";
+				captcha.input = Captcha.Input.ALL;
+				captcha.validity = Captcha.Validity.IN_THREAD;
+				captcha.ttl = CAPTCHA_TTL;
+				return captcha;
+			case CAPTCHA_TYPE_2CH_EMOJI_CAPTCHA:
+				captcha.title = "Emoji Captcha";
+				captcha.input = Captcha.Input.ALL;
+				captcha.validity = Captcha.Validity.IN_THREAD;
+				captcha.ttl = CAPTCHA_TTL;
+				return captcha;
+			default:
+				return null;
 		}
-		return null;
 	}
 
 	@Override
