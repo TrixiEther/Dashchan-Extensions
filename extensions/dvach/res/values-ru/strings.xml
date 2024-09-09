@@ -2,4 +2,5 @@
 
 <resources>
     <string name="preference_captcha_full_keyboard">Использовать полную клавиатуру для капчи</string>
+    <string name="emoji_captcha_input">Выберите все символы на картинке (в любом порядке)</string>
 </resources>

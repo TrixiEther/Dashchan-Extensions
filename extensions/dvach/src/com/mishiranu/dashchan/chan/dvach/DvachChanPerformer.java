@@ -1016,7 +1016,25 @@ public class DvachChanPerformer extends ChanPerformer {
 						}
 					}
 
-				} else if (DvachChanConfiguration.CAPTCHA_TYPE_RECAPTCHA_2.equals(data.captchaType) ||
+				} else if (DvachChanConfiguration.CAPTCHA_TYPE_2CH_EMOJI_CAPTCHA.equals(data.captchaType)) {
+                    if (data.mayShowLoadButton) {
+                        return new ReadCaptchaResult(CaptchaState.NEED_LOAD, null);
+                    }
+                    DvachEmojiCaptchaProvider.DvachEmojiCaptchaAnswerRetriever retriever =
+                            (Bitmap task, Bitmap[] keyboardImages) -> {
+								try {
+									return requireUserImageSingleChoice(-1,
+											keyboardImages,
+											configuration.getResources().getString(
+													R.string.emoji_captcha_input),
+											task);
+								} catch (HttpException e) {
+									return -1;
+								}
+							};
+                    return new DvachEmojiCaptchaProvider(data, locator, id, retriever)
+                            .loadEmojiCaptcha();
+                }  else if (DvachChanConfiguration.CAPTCHA_TYPE_RECAPTCHA_2.equals(data.captchaType) ||
 						DvachChanConfiguration.CAPTCHA_TYPE_RECAPTCHA_2_INVISIBLE.equals(data.captchaType)) {
 					result = new ReadCaptchaResult(CaptchaState.CAPTCHA, captchaData);
 					captchaData.put(CaptchaData.API_KEY, id);
@@ -1091,14 +1109,19 @@ public class DvachChanPerformer extends ChanPerformer {
 			String challenge = data.captchaData.get(CaptchaData.CHALLENGE);
 			String input = StringUtils.emptyIfNull(data.captchaData.get(CaptchaData.INPUT));
 
-			String remoteCaptchaType = DvachChanConfiguration.CAPTCHA_TYPES.get(data.captchaType);
-			if (remoteCaptchaType != null) {
-				entity.add("captcha_type", remoteCaptchaType);
+			if (!DvachChanConfiguration.CAPTCHA_TYPE_2CH_EMOJI_CAPTCHA.equals(data.captchaType)) {
+				String remoteCaptchaType = DvachChanConfiguration.CAPTCHA_TYPES.get(data.captchaType);
+				if (remoteCaptchaType != null) {
+					entity.add("captcha_type", remoteCaptchaType);
+				}
 			}
 			if (DvachChanConfiguration.CAPTCHA_TYPE_2CH_CAPTCHA.equals(data.captchaType)) {
 				entity.add("2chcaptcha_id", challenge);
 				entity.add("2chcaptcha_value", input);
-			} else if (DvachChanConfiguration.CAPTCHA_TYPE_RECAPTCHA_2.equals(data.captchaType) ||
+			} else if (DvachChanConfiguration.CAPTCHA_TYPE_2CH_EMOJI_CAPTCHA.equals(data.captchaType)) {
+				entity.add("captcha_type", DvachChanConfiguration.CAPTCHA_TYPE_2CH_EMOJI_CAPTCHA);
+                entity.add("emoji_captcha_id", challenge);
+            } else if (DvachChanConfiguration.CAPTCHA_TYPE_RECAPTCHA_2.equals(data.captchaType) ||
 					DvachChanConfiguration.CAPTCHA_TYPE_RECAPTCHA_2_INVISIBLE.equals(data.captchaType)) {
 				entity.add("g-recaptcha-response", input);
 			}
