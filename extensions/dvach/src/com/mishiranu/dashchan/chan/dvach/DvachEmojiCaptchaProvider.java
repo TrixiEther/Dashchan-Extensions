@@ -101,6 +101,8 @@ class DvachEmojiCaptchaProvider {
                 int maxSize = Math.max(origKeyIcon.getHeight(), origKeyIcon.getWidth());
                 Bitmap keyBitmap = Bitmap.createBitmap(maxSize, maxSize, Bitmap.Config.ARGB_8888);
                 Canvas keyCanvas = new Canvas(keyBitmap);
+                // set key background to white so the black icon would not overlap with dark theme
+                keyCanvas.drawARGB(255, 255, 255, 255);
                 int x = Math.max((origKeyIcon.getHeight() - origKeyIcon.getWidth()) / 2, 0);
                 int y = Math.max((origKeyIcon.getWidth() - origKeyIcon.getHeight()) / 2, 0);
                 keyCanvas.drawBitmap(origKeyIcon, x, y, null);
@@ -226,6 +228,12 @@ class DvachEmojiCaptchaProvider {
         height = captchaImage.getHeight() + SelectedEmojis.SIZE_WITH_PADDING;
         comboBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas comboImage = new Canvas(comboBitmap);
+
+        // Ensure that captcha has white background, so we will have black
+        // selected icons on white canvas, despite of app theme
+        if (!selected.bitmaps.isEmpty()) {
+            comboImage.drawARGB(255, 255, 255, 255);
+        }
 
         for (int i = 0; i < selected.bitmaps.size(); i++) {
             comboImage.drawBitmap(selected.bitmaps.get(i),
