@@ -71,7 +71,7 @@ jobs:
       run: ./gradlew :extensions:${{ matrix.package.module }}:assembleRelease
 
     - name: Upload APK - ${{ matrix.package.name }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: Dashchan${{ matrix.package.name }}.apk
         path: extensions/${{ matrix.package.module }}/build/outputs/apk/release/Dashchan${{ matrix.package.name }}-release.apk
