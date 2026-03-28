@@ -72,7 +72,7 @@ public class DollchanChanConfiguration extends ChanConfiguration {
 		authorization.fieldsCount = 3;
 		authorization.hints = new String[3];
 		authorization.hints[0] = "Board (ukr, de, etc)";
-		authorization.hints[1] = "Passcode, or";
+		authorization.hints[1] = "Passcode or user name";
 		authorization.hints[2] = "Password";
 		return authorization;
 	}

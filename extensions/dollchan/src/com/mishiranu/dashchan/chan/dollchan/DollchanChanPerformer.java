@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 public class DollchanChanPerformer extends WakabaChanPerformer {
 
 	private static final int AUTH_FIELD_BOARD = 0;
-	private static final int AUTH_FIELD_PASSCODE = 1;
+	private static final int AUTH_FIELD_PASSCODE_OR_USERNAME = 1;
 	private static final int AUTH_FIELD_PASSWORD = 2;
 	private static final String COOKIE_AUTHORIZATION = "AUTHORIZATION";
 	private static final String COOKIE_PASSCODE = "PASSCODE";
@@ -111,11 +111,11 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 	public CheckAuthorizationResult onCheckAuthorization(CheckAuthorizationData data)
 			throws HttpException {
 		String boardName = data.authorizationData[AUTH_FIELD_BOARD];
-		String passcode = data.authorizationData[AUTH_FIELD_PASSCODE];
+		String passcodeOrUserName = data.authorizationData[AUTH_FIELD_PASSCODE_OR_USERNAME];
 		String password = data.authorizationData[AUTH_FIELD_PASSWORD];
-		if (password != null && !password.equals("")) {
-			return new CheckAuthorizationResult(authorizeUserForManage(data, boardName, password) != null);
-		} else if (passcode != null && !passcode.equals("")) {
+		if (password != null && !password.equals("") && passcodeOrUserName != null && !passcodeOrUserName.equals("")) {
+			return new CheckAuthorizationResult(authorizeUserForManage(data, boardName, passcodeOrUserName, password) != null);
+		} else if (passcodeOrUserName != null && !passcodeOrUserName.equals("")) {
 			return new CheckAuthorizationResult(authorizeUserForPasscode(data, boardName));
 		} else {
 			return new CheckAuthorizationResult(false);
@@ -126,10 +126,11 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 			throws HttpException {
 		String[] authorizationData = DollchanChanConfiguration.get(this).getUserAuthorizationData();
 		String boardName = authorizationData[AUTH_FIELD_BOARD];
+		String userName = authorizationData[AUTH_FIELD_PASSCODE_OR_USERNAME];
 		String password = authorizationData[AUTH_FIELD_PASSWORD];
 		if (force || !checkPassword(password)) {
 			if (password != null) {
-				return authorizeUserForManage(preset, boardName, password);
+				return authorizeUserForManage(preset, boardName, userName, password);
 			} else {
 				userPassword = null;
 			}
@@ -137,14 +138,16 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 		return userPassword;
 	}
 
-	private String authorizeUserForManage(HttpRequest.Preset preset, String boardName, String password)
+	private String authorizeUserForManage(HttpRequest.Preset preset, String boardName, String userName, String password)
 			throws HttpException {
 		userPassword = null;
 		DollchanChanLocator locator = ChanLocator.get(this);
 
 		Uri uri = locator.buildPath(boardName, "imgboard.php?manage");
 		HttpResponse response = new HttpRequest(uri, preset).setPostMethod(
-			new UrlEncodedEntity("managepassword", password)).perform();
+			new MultipartEntity(
+				"manage_user", userName,
+				"manage_password", password)).perform();
 
 		DollchanChanConfiguration configuration = DollchanChanConfiguration.get(this);
 
@@ -167,7 +170,7 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 		DollchanChanLocator locator = ChanLocator.get(this);
 
 		String[] authorizationData = DollchanChanConfiguration.get(this).getUserAuthorizationData();
-		if (authorizationData[AUTH_FIELD_PASSCODE] == null) {
+		if (authorizationData[AUTH_FIELD_PASSCODE_OR_USERNAME] == null) {
 			configuration.storeCookie(COOKIE_PASSCODE, null, "Passcode");
 			return false;
 		}
@@ -175,7 +178,7 @@ public class DollchanChanPerformer extends WakabaChanPerformer {
 		Uri uri = locator.buildPath(boardName, "imgboard.php?passcode");
 		HttpResponse response = new HttpRequest(uri, preset).setPostMethod(
 			new UrlEncodedEntity("passcode",
-				authorizationData[AUTH_FIELD_PASSCODE])).perform();
+				authorizationData[AUTH_FIELD_PASSCODE_OR_USERNAME])).perform();
 
 		String responseString = response.readString();
 		if (responseString == null || !responseString.contains("You have logged in.")) {

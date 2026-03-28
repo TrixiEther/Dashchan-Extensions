@@ -20,6 +20,7 @@ import chan.content.model.Post;
 import chan.content.model.Posts;
 import chan.text.ParseException;
 import chan.text.TemplateParser;
+import chan.util.CommonUtils;
 import chan.util.StringUtils;
 
 public class DollchanPostsParser {
@@ -97,30 +98,22 @@ public class DollchanPostsParser {
 
 	private static final TemplateParser<DollchanPostsParser> PARSER =
 		TemplateParser.<DollchanPostsParser>builder()
-		.equals("input", "name", "delete")
+		.starts("section", "id", "thread")
 		.open((instance, holder, tagName, attributes) -> {
-			if ("checkbox".equals(attributes.get("type"))) {
-				holder.headerHandling = true;
-				if (holder.post == null || holder.post.getPostNumber() == null) {
-					String number = attributes.get("value");
-					if (holder.post == null) {
-						holder.post = new Post();
-						holder.icons = null;
-					}
-					holder.post.setPostNumber(number);
-					holder.parent = number;
-					if (holder.threads != null) {
-						holder.closeThread();
-						holder.thread = new Posts();
-						holder.attachments = null;
-					}
-				}
+			if (holder.threads != null) {
+				holder.closeThread();
+				holder.thread = new Posts();
+				holder.attachments = null;
 			}
+
+			holder.parent = StringUtils.emptyIfNull(attributes.get("id")).substring(6);
 			return false;
 		})
-		.starts("td", "id", "reply")
+		.starts("article", "id", "post")
 		.open((instance, holder, tagName, attributes) -> {
-			String number = StringUtils.emptyIfNull(attributes.get("id")).substring(5);
+			holder.headerHandling = true;
+			String number = StringUtils.emptyIfNull(attributes.get("id")).substring(4);
+			holder.icons = null;
 			Post post = new Post();
 			post.setParentPostNumber(holder.parent);
 			post.setPostNumber(number);
@@ -129,7 +122,7 @@ public class DollchanPostsParser {
 			return false;
 		})
 		// Atomboard: start new attachment for each post-file block
-		.equals("div", "class", "post-file")
+		.equals("figure", "class", "post-file")
 		.open((instance, holder, tagName, attributes) -> {
 			if (holder.post == null) {
 				holder.post = new Post();
@@ -144,14 +137,14 @@ public class DollchanPostsParser {
 			holder.attachment = new FileAttachment();
 			return false;
 		})
-		// Full file link
+		// Full file link (name only, URL from file-wrap)
 		.equals("a", "class", "file-fullname")
 		.open((instance, holder, tagName, attributes) -> {
-			// In Atomboard markup full image URL inside file-wrap's <a>, not file-fullname
+			// In Atomboard markup full image URL is inside file-wrap's <a>, not here
 			return false;
 		})
 		// File-info: size and dimensions, plus name pieces inside
-		.equals("div", "class", "file-info")
+		.equals("figcaption", "class", "file-info")
 		.content((instance, holder, text) -> {
 			if (holder.attachment != null) {
 				// Strip HTML entities/spans, keep readable text
@@ -189,7 +182,7 @@ public class DollchanPostsParser {
 				holder.attachment.setOriginalName(orig + "." + ext);
 			}
 		})
-		// Dimensions and full image URL from file-wrap
+		// Dimensions from file-wrap
 		.equals("div", "class", "file-wrap")
 		.open((instance, holder, tagName, attributes) -> {
 			if (holder.attachment != null) {
@@ -276,12 +269,12 @@ public class DollchanPostsParser {
 			}
 			return false;
 		})
-		.equals("span", "class", "posteruid")
+		.equals("span", "class", "poster-uid")
 		.content((instance, holder, text) -> {
 			String id = StringUtils.clearHtml(text);
 			holder.post.setIdentifier(id);
 		})
-		.starts("span", "class", "postername")
+		.starts("span", "class", "poster-name")
 		.content((instance, holder, text) -> {
 			if (holder.post.getName() != null) {
 				holder.post.setName(holder.post.getName() + " " + text);
@@ -289,27 +282,28 @@ public class DollchanPostsParser {
 				holder.post.setName(text);
 			}
 		})
-		.equals("span", "class", "postername postername-admin")
+		.equals("span", "class", "poster-name poster-name-admin")
 		.content((instance, holder, text) -> {
 			holder.post.setCapcode(StringUtils.clearHtml(text));
 		})
-		.equals("span", "class", "postertrip")
+		.equals("span", "class", "poster-trip")
 		.content((instance, holder, text) -> holder.post
 				.setTripcode(StringUtils.nullIfEmpty(StringUtils.clearHtml(text).trim())))
-		.equals("span", "class", "posterdate")
+		.equals("time", "class", "post-date")
 		.open((instance, holder, tagName, attributes) -> {
-			String timestamp = attributes.get("data-timestamp");
+			String timestamp = attributes.get("datetime");
 			if (timestamp != null)
 			{
 				try {
-					holder.post.setTimestamp(Long.parseLong(timestamp) * 1000);
-				} catch (NumberFormatException ignored) {
+					long t = IsoTimestampParser.parseToMillis(timestamp);
+					holder.post.setTimestamp(t);
+				} catch (java.text.ParseException ignored) {
 					// Ignore exception
 				}
 			}
 			return true;
 		})
-		.equals("div", "class", "post-message")
+		.equals("blockquote", "class", "post-message")
 		.content((instance, holder, text) -> {
 			text = text.trim();
 			int index = text.lastIndexOf("<div class=\"abbrev\">");
@@ -323,7 +317,7 @@ public class DollchanPostsParser {
 		})
 		.equals("div", "class", "omittedposts")
 		.content((instance, holder, text) -> {
-			if (holder.threads != null) {
+			if (holder.threads != null && holder.thread != null) {
 				Matcher matcher = NUMBER.matcher(text);
 				if (matcher.find()) {
 					holder.thread.addPostsCount(Integer.parseInt(matcher.group()));
@@ -355,7 +349,14 @@ public class DollchanPostsParser {
 			}
 			return false;
 		})
+		// old-style reflink container
 		.equals("span", "class", "reflink")
+		.open((instance, holder, tagName, attributes) -> {
+			holder.reflinkParsing = true;
+			return false;
+		})
+		// new-style reflink container: post-id
+		.equals("span", "class", "post-id")
 		.open((instance, holder, tagName, attributes) -> {
 			holder.reflinkParsing = true;
 			return false;

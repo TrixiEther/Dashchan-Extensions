@@ -22,6 +22,7 @@ public class DollchanChanMarkup extends ChanMarkup {
 		addTag("pre", TAG_CODE);
 		addBlock("span", "aa", true, false);
 		addColorable("span", "colored", "true");
+		addColorable("span", "autoreplace");
 	}
 
 	@Override
